@@ -1,11 +1,17 @@
 use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
-use cursive::views::{SelectView, TextView, Dialog, LinearLayout, ListView, EditView, Checkbox};
-use cursive::Cursive;
+use cursive::views::{SelectView, TextView, Dialog, LinearLayout, ListView, EditView, Checkbox, CircularFocus};
+use cursive::{Cursive, With};
+use std::fs::File;
+mod hcrypto;
+use std::io::prelude::*;
+use std::io::BufReader;
+use std::io::Write;
+use std::os::unix::prelude::FileExt;
 
 
 pub fn show_error(app: &mut Cursive, msg: &str) {
-   let rout = format!("Error: {}", msg);
+   let rout = format!("Info: {}", msg);
    app.add_layer(Dialog::around(TextView::new(rout)).button("OK", |s| s.quit()));
 }
 
@@ -39,7 +45,7 @@ fn login(app: &mut Cursive) {
          ListView::new()
          .child("Username: ", EditView::new().with_name("username"))
          .child("Password: ", EditView::new().with_name("password"))
-         .child("signup", Checkbox::new().with_name("Signup")),
+         .child("signup", Checkbox::new().with_name("signup")),
       )
       .button("Continue", |s| {
          let username = s
@@ -56,6 +62,27 @@ fn login(app: &mut Cursive) {
             password: &password,
             signup,
          };
-
+         check_pass(s, &options);
        }).fixed_width(30));
+}
+
+fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
+      let mut file = File::create(&fp).expect("Could not create file!"); 
+      let hashed_password = hcrypto::hash(&info.password);
+      file.write_all(info.username.as_bytes()).expect("Could not write to file!");
+      file.write_all(hashed_password.as_bytes()).expect("Could not write to file!");
+      show_error(app, "User created!");
+   
+}
+
+fn check_pass(app: &mut Cursive, info: &SigninDetails) {
+   let fp = format!("master{}.txt", info.username);
+   if info.signup == true {
+      signup(app, info, &fp);
+   }
+   else {
+      let mut file = File::open(&fp).expect("Could not open file");
+      let output = file.read();
+   }
+
 }
