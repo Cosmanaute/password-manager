@@ -1,14 +1,12 @@
 use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
-use cursive::views::{SelectView, TextView, Dialog, LinearLayout, ListView, EditView, Checkbox, CircularFocus};
-use cursive::{Cursive, With};
+use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
+use cursive::Cursive;
 use std::fs::File;
 use std::path::Path;
 mod hcrypto;
 use std::io::prelude::*;
-use std::io::BufReader;
 use std::io::Write;
-use std::os::unix::prelude::FileExt;
 
 fn usage(app: &mut Cursive) {
    
@@ -33,7 +31,7 @@ pub fn start(app: &mut Cursive) {
          _=> show_msg(s, "An error occured!", "Error"),
       };
    });
-   app.add_layer(Dialog::around(menu).title("Menu"));
+   app.add_layer(Dialog::around(menu).title("Menu").fixed_width(30));
 }
 
 struct SigninDetails<'a> {
@@ -53,14 +51,11 @@ fn login(app: &mut Cursive) {
       )
       .button("Continue", |s| {
          let username = s
-             .call_on_name("username", |t: &mut EditView| t.get_content())
-             .unwrap();
+             .call_on_name("username", |t: &mut EditView| t.get_content()).unwrap();
          let password = s
-             .call_on_name("password", |t: &mut EditView| t.get_content())
-             .unwrap();
+             .call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
          let signup = s
-             .call_on_name("signup", |t: &mut Checkbox| t.is_checked())
-             .unwrap();
+             .call_on_name("signup", |t: &mut Checkbox| t.is_checked()).unwrap();
          let info = SigninDetails {
             username: &username,
             password: &password,
@@ -68,7 +63,7 @@ fn login(app: &mut Cursive) {
          };
          check_pass(s, &info);
        })
-      .button("Back", |s| {s.pop_layer();})
+      .button("Cancel", |s| {s.pop_layer();})
       .fixed_width(30));
 }
 
@@ -77,7 +72,6 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
       let hashed_password = hcrypto::hash(&info.password);
       file.write_all(hashed_password.as_bytes()).expect("Could not write to file!");
       show_msg(app, "User created!", "Info");
-   
 }
 
 fn check_pass(app: &mut Cursive, info: &SigninDetails) {
@@ -86,22 +80,23 @@ fn check_pass(app: &mut Cursive, info: &SigninDetails) {
       if info.signup == true {
          signup(app, info, &fp);
       }
-      else {   
-         let mut file = File::open(&fp).expect("Could not open file");
-         let mut contents = String::new();
-         file.read_to_string(&mut contents).unwrap();
-         if contents.as_str() == hcrypto::hash(&info.password).as_str() {
-            dashboard(app);
-         }
-         else {
-            show_msg(app, "Password Incorrect", "Error");
-         }
+      else {
+         show_msg(app, "Incorrect username or password!", "Error");
       }
    }
-   else {
-      show_msg(app, "User does not exist!", "Error");
+   else {   
+      let mut file = File::open(&fp).expect("Could not open file");
+      let mut contents = String::new();
+      file.read_to_string(&mut contents).unwrap();
+      if contents.as_str() == hcrypto::hash(&info.password).as_str() {
+         std::mem::drop(contents);
+         dashboard(app);
+      }
+      else {
+         show_msg(app, "Incorrect username or password", "Error");
+         std::mem::drop(contents);
+      }
    }
-  
 }
 
 fn dashboard(app: &mut Cursive) {
