@@ -2,14 +2,14 @@ use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
 use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
 use cursive::Cursive;
-use std::fs::File;
+use std::fs::{File, self};
 use std::path::Path;
 mod hcrypto;
 use std::io::prelude::*;
 use std::io::Write;
 
 fn usage(app: &mut Cursive) {
-   
+      
 }
 
 pub fn show_msg(app: &mut Cursive, msg: &str, status: &str) {
@@ -61,6 +61,9 @@ fn login(app: &mut Cursive) {
             password: &password,
             signup,
          };
+         if Path::new("secure").is_dir() == false {
+            fs::create_dir("secure").expect("Could not create folder");
+         }
          check_pass(s, &info);
        })
       .button("Cancel", |s| {s.pop_layer();})
@@ -75,7 +78,7 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
 }
 
 fn check_pass(app: &mut Cursive, info: &SigninDetails) {
-   let fp = format!("master{}.txt", info.username);
+   let fp = format!("secure/signature{}.txt", info.username);
    if Path::new(&fp).exists() == false {
       if info.signup == true {
          signup(app, info, &fp);
@@ -84,7 +87,7 @@ fn check_pass(app: &mut Cursive, info: &SigninDetails) {
          show_msg(app, "Incorrect username or password!", "Error");
       }
    }
-   else {   
+   else {
       let mut file = File::open(&fp).expect("Could not open file");
       let mut contents = String::new();
       file.read_to_string(&mut contents).unwrap();
