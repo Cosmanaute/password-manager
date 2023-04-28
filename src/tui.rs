@@ -1,6 +1,6 @@
 use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
-use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
+use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox, DialogFocus};
 use cursive::Cursive;
 use std::fs::{File, self};
 use std::path::Path;
@@ -9,7 +9,8 @@ use std::io::prelude::*;
 use std::io::Write;
 
 fn usage(app: &mut Cursive) {
-      
+   let text = format!("Arrowkeys to move up and down.\nSpace and Enter to choose.");
+   app.add_layer(Dialog::around(TextView::new(text)).button("OK", |s| {s.pop_layer();}))
 }
 
 pub fn show_msg(app: &mut Cursive, msg: &str, status: &str) {
