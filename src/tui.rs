@@ -1,7 +1,9 @@
 use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
-use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox, DialogFocus};
+use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
 use cursive::Cursive;
+use cursive::{menu, traits::*};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::fs::{File, self};
 use std::path::Path;
 mod hcrypto;
@@ -62,8 +64,15 @@ fn login(app: &mut Cursive) {
             password: &password,
             signup,
          };
+
          if Path::new("secure").is_dir() == false {
             fs::create_dir("secure").expect("Could not create folder");
+         }
+         if Path::new("secure/signatures").is_dir() == false {
+            fs::create_dir("secure/signatures").expect("Could not create folder");
+         }
+         if Path::new("secure/vaulted").is_dir() == false {
+            fs::create_dir("secure/vaulted").expect("Could not create folder");
          }
          check_pass(s, &info);
        })
@@ -79,32 +88,46 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
 }
 
 fn check_pass(app: &mut Cursive, info: &SigninDetails) {
-   let fp = format!("secure/signature{}.txt", info.username);
-   if Path::new(&fp).exists() == false {
-      if info.signup == true {
+    let fp = format!("secure/signatures/{}.txt", info.username);
+    if Path::new(&fp).exists() == false && info.signup == true {
          signup(app, info, &fp);
-      }
-      else {
+    }
+    else if Path::new(&fp).exists() == false && info.signup == false {
          show_msg(app, "Incorrect username or password!", "Error");
-      }
-   }
-   else {
-      let mut file = File::open(&fp).expect("Could not open file");
-      let mut contents = String::new();
-      file.read_to_string(&mut contents).unwrap();
-      if contents.as_str() == hcrypto::hash(&info.password).as_str() {
-         std::mem::drop(contents);
-         dashboard(app);
-      }
-      else {
-         show_msg(app, "Incorrect username or password", "Error");
-         std::mem::drop(contents);
-      }
-   }
+    }
+    else if Path::new(&fp).exists() == true && info.signup == true {
+         show_msg(app, "User already exists!", "Error");
+    }
+    else if Path::new(&fp).exists() == true && info.signup == false {
+        let mut file = File::open(&fp).expect("Error opening file!");
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        if contents.as_str() == hcrypto::hash(&info.password).as_str() {
+            app.pop_layer();
+            let mut menu = SelectView::new().h_align(HAlign::Center);
+            menu.add_item("Vault", "0");
+            menu.add_item("Genrator", "1");
+            menu.add_item("Exit", "2");
+
+            menu.set_on_submit(|s, option: &str| {
+               match option {
+                  "0" => vault(s),
+                  "2" => s.quit(),
+                  _=> show_msg(s, "An error occured!", "Error"),
+               };
+            });
+            app.add_layer(Dialog::around(menu).title("Menu").fixed_width(30));
+        }
+        else {
+            show_msg(app, "Incorrect username or password", "Error 404");
+        }
+    }
+    else {
+        show_msg(app, "Incorrect username or password", "Error");
+    }
 }
 
-fn dashboard(app: &mut Cursive) {
-    show_msg(app, "Logged in!", "Success"); 
+fn vault(app: &mut Cursive) {
 }
 
 
