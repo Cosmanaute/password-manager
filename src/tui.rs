@@ -2,16 +2,16 @@ use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
 use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
 use cursive::Cursive;
-use cursive::{menu, traits::*};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use cursive::menu;
 use std::fs::{File, self};
 use std::path::Path;
 mod hcrypto;
 use std::io::prelude::*;
 use std::io::Write;
+use std::rc::Rc;
 
 fn usage(app: &mut Cursive) {
-   let text = format!("Arrowkeys to move up and down,\nEnter to choose.");
+   let text = format!("Arrowkeys to move up and down,\nEnter to submit.");
    app.add_layer(Dialog::around(TextView::new(text)).title("Usage").button("OK", |s| {s.pop_layer();}))
 }
 
@@ -73,7 +73,7 @@ fn login(app: &mut Cursive) {
          if Path::new("secure/vault").is_dir() == false {
             fs::create_dir("secure/vault").expect("Could not create folder");
          }
-         check_pass(s, &info);
+         check_pass(s, info);
        })
       .fixed_width(30));
 }
@@ -85,11 +85,11 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
       show_msg(app, "User created!", "Info");
 }
 
-fn check_pass(app: &mut Cursive, info: &SigninDetails) {
+fn check_pass(app: &mut Cursive, info: SigninDetails) {
     let fp = format!("secure/signatures/{}.txt", info.username);
 
     if Path::new(&fp).exists() == false && info.signup == true {
-         signup(app, info, &fp);
+         signup(app, &info, &fp);
     }
     else if Path::new(&fp).exists() == false && info.signup == false {
          show_msg(app, "Incorrect username or password!", "Error");
@@ -101,9 +101,15 @@ fn check_pass(app: &mut Cursive, info: &SigninDetails) {
         let mut file = File::open(&fp).expect("Error opening file!");
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
+
         if contents.as_str() == hcrypto::hash(&info.password).as_str() {
             app.pop_layer();
-            groups(app);
+            let path = format!("secure/vault/{}", info.username);
+            if Path::new(&path.as_str()).is_dir() == false {
+                fs::create_dir(&path).expect("Could not create folder"); 
+            }
+            let username = info.username.clone();
+            groups(app, username);
         }
         else {
             show_msg(app, "Incorrect username or password", "Error");
@@ -114,11 +120,11 @@ fn check_pass(app: &mut Cursive, info: &SigninDetails) {
     }
 }
 
-fn groups(app: &mut Cursive) {
-   app.pop_layer();
-   let mut count: usize  = 0;
+fn groups(app: &mut Cursive, username: &str) {
+   let mut count: usize = 1;
    let mut menu = SelectView::new().h_align(HAlign::Center);
-   let entries = fs::read_dir("secure/vault").unwrap();
+   let dir = format!("secure/vault/{}", username);
+   let entries = fs::read_dir(dir).unwrap();
    
    for entry in entries {
       let entry = entry.unwrap();
@@ -127,19 +133,51 @@ fn groups(app: &mut Cursive) {
       if path.is_dir() {
          let dir_name = path.file_name().unwrap().to_str().unwrap();
          menu.add_item(dir_name, count.to_string());
+         count +=1;
       }
    }
-   
-   menu.set_on_submit(|s, option: &str| {
-      vault(s, &option);
+
+   let username = String::from(username);
+   menu.set_on_submit(move |s, option: &str| {
+      select_group(s, &option, &username);
    });
    
    app.add_layer(Dialog::around(menu).title("Vault - Groups").fixed_width(30)); 
 }
 
-fn vault(app: &mut Cursive, index: &str) {
-
+fn select_group(app: &mut Cursive, index: &str, username: &str) {
+   let selected: usize = index.trim().parse().unwrap();
+   let mut count: usize  = 1;
+   let dir = format!("secure/vault/{}", username);
+   let entries = fs::read_dir(dir).unwrap();
+   
+   for entry in entries {
+      let entry = entry.unwrap();
+      let path = entry.path();
+      if count == selected {
+         let group = path.file_name().unwrap().to_str().unwrap();
+         vault(app, &group, &username);
+      }
+      else {
+         count +=1;
+      }
+   }
 }
 
+fn vault(app: &mut Cursive, group: &str, username: &str) {
+   let path = format!("secure/vault/{}/{}", username, group);
+   let entries = fs::read_dir(path).unwrap();
+   let mut menu = SelectView::new().h_align(HAlign::Center);
+   
+   for entry in entries {
+      let entry = entry.unwrap();
+      let path = entry.path(); 
 
+      if path.is_dir() {
+         let dir_name = path.file_name().unwrap().to_str().unwrap();
+         menu.add_item(dir_name, "1");
+      }
+   }
+   app.add_layer(Dialog::around(menu).title("Vault").button("Back", |s| {s.pop_layer();}).fixed_width(30));
+}
 
