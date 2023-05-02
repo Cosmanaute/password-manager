@@ -8,15 +8,15 @@ use std::path::{Path, PathBuf};
 mod hcrypto;
 use std::io::prelude::*;
 use std::io::Write;
+use cursive::View;
 
 fn usage(app: &mut Cursive) {
-   let text = format!("Arrowkeys to move up and down,\nEnter to submit.");
+   let text = format!("Arrowkeys to move up and down,\nEnter to submit.\nCtrl + Backspace to Backspace.");
    app.add_layer(Dialog::around(TextView::new(text)).title("Usage").button("OK", |s| {s.pop_layer();}))
 }
 
 pub fn notify(app: &mut Cursive, msg: &str, status: &str) {
    let rout = format!("{}: {}", status, msg);
-   app.add_layer(Dialog::around(TextView::new(rout)).button("OK", |s| {s.pop_layer();}));
 }
 
 pub fn start(app: &mut Cursive) {
@@ -133,14 +133,38 @@ fn groups(app: &mut Cursive, username: &str) {
          menu.add_item_str(dir_name);
       }
    }
-
-   let username = String::from(username);
-   menu.set_on_submit(move |s, option: &str| {
-      select_group(s, &option, &username);
-   });
    
+   let user = String::from(username);
+   let temp_user = String::from(user.clone());
+   menu.set_on_submit(move |s, option: &str| {
+      select_group(s, option, &user);
+   });
+
    app.add_layer(Dialog::around(menu).title("Vault - Groups")
-      .button("Add Group", |s| s.quit()).fixed_width(30)); 
+      .button("Add Group", move |s| {
+         add_group(s, &temp_user);})); 
+}
+
+fn add_group(app: &mut Cursive, username: &str) {    
+   let user = String::from(username);
+   app.add_layer(Dialog::new()
+       .title("Add Group")
+       .content(ListView::new()
+       .child("Group: ", EditView::new().with_name("newgroup")),
+      )
+         .button("Add", move |s| {
+            let new_group = s.call_on_name("newgroup", |t: &mut EditView| t.get_content()).unwrap();
+            let fp = format!("secure/vault/{}/{}", &user, new_group);
+            if Path::new(&fp).is_dir() == false {
+                let file = fs::create_dir(&fp).expect("Could not create file");
+                s.pop_layer();
+                notify(s, "Group Created", "Success");
+         }
+            else {
+                notify(s, "Group Already Exists!", "Error");    
+         }
+      })
+         );
 }
 
 fn select_group(app: &mut Cursive, selected: &str, username: &str) {
@@ -172,4 +196,7 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
    app.add_layer(Dialog::around(menu).title("Vault").button("Back", |s| {s.pop_layer();})
       .button("Add User", |s| s.quit()).fixed_width(30));
 }
+
+
+
 
