@@ -16,7 +16,8 @@ fn usage(app: &mut Cursive) {
 }
 
 pub fn notify(app: &mut Cursive, msg: &str, status: &str) {
-   let rout = format!("{}: {}", status, msg);
+   let text = format!("{}: {}", status, msg);
+   app.add_layer(Dialog::around(TextView::new(text)).title(status).button("OK", |s| {s.pop_layer();}))
 }
 
 pub fn start(app: &mut Cursive) {
@@ -142,7 +143,7 @@ fn groups(app: &mut Cursive, username: &str) {
 
    app.add_layer(Dialog::around(menu).title("Vault - Groups")
       .button("Add Group", move |s| {
-         add_group(s, &temp_user);})); 
+         add_group(s, &temp_user);}).fixed_width(30));
 }
 
 fn add_group(app: &mut Cursive, username: &str) {    
@@ -158,7 +159,9 @@ fn add_group(app: &mut Cursive, username: &str) {
             if Path::new(&fp).is_dir() == false {
                 let file = fs::create_dir(&fp).expect("Could not create file");
                 s.pop_layer();
+                s.pop_layer();
                 notify(s, "Group Created", "Success");
+                groups(s, user.as_str());
          }
             else {
                 notify(s, "Group Already Exists!", "Error");    
@@ -196,7 +199,3 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
    app.add_layer(Dialog::around(menu).title("Vault").button("Back", |s| {s.pop_layer();})
       .button("Add User", |s| s.quit()).fixed_width(30));
 }
-
-
-
-
