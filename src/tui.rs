@@ -57,7 +57,7 @@ fn login(app: &mut Cursive) {
          let username = s.call_on_name("username", |t: &mut EditView| t.get_content()).unwrap();
          let password = s.call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
          let signup = s.call_on_name("signup", |t: &mut Checkbox| t.is_checked()).unwrap();
-
+         
          let info = SigninDetails {
             username: &username,
             password: &password,
@@ -73,7 +73,12 @@ fn login(app: &mut Cursive) {
          if Path::new("secure/vault").is_dir() == false {
             fs::create_dir("secure/vault").expect("Could not create folder");
          }
-         check_pass(s, info);
+         if info.username.chars().all(char::is_whitespace) || info.username.is_empty() {
+            notify(s, "Username cannot be None", "Error");
+         }
+         else {
+            check_pass(s, info);
+         }
        })
       .fixed_width(30));
 }
@@ -86,18 +91,18 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
 }
 
 fn check_pass(app: &mut Cursive, info: SigninDetails) {
-    let fp = format!("secure/signatures/{}.txt", info.username);
+   let fp = format!("secure/signatures/{}.txt", info.username);
 
-    if Path::new(&fp).exists() == false && info.signup == true {
+   if Path::new(&fp).exists() == false && info.signup == true {
          signup(app, &info, &fp);
-    }
-    else if Path::new(&fp).exists() == false && info.signup == false {
+   }
+   else if Path::new(&fp).exists() == false && info.signup == false {
          notify(app, "Incorrect username or password!", "Error");
-    }
-    else if Path::new(&fp).exists() == true && info.signup == true {
+   }
+   else if Path::new(&fp).exists() == true && info.signup == true {
          notify(app, "User already exists!", "Error");
-    }
-    else if Path::new(&fp).exists() == true && info.signup == false {
+   }
+   else if Path::new(&fp).exists() == true && info.signup == false {
         let mut file = File::open(&fp).expect("Error opening file!");
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
@@ -124,14 +129,20 @@ fn groups(app: &mut Cursive, username: &str) {
    let mut menu = SelectView::new().h_align(HAlign::Center);
    let dir = format!("secure/vault/{}", username);
    let entries = fs::read_dir(&dir).unwrap();
-   
-   for entry in entries {
-      let entry = entry.unwrap();
-      let path = entry.path();
+   if  PathBuf::from(&dir).read_dir().map(|mut i| i.next().is_none()).unwrap_or(false) {
+       menu.add_item_str("<empty>");
+       menu.add_item_str("<empty>");
+       menu.add_item_str("<empty>");
+   }
+   else {
+      for entry in entries {
+         let entry = entry.unwrap();
+         let path = entry.path();
 
-      if path.is_dir() {
-         let dir_name = path.file_name().unwrap().to_str().unwrap();
-         menu.add_item_str(dir_name);
+         if path.is_dir() {
+            let dir_name = path.file_name().unwrap().to_str().unwrap();
+            menu.add_item_str(dir_name);
+         }
       }
    }
    
@@ -143,7 +154,7 @@ fn groups(app: &mut Cursive, username: &str) {
 
    app.add_layer(Dialog::around(menu).title("Vault - Groups")
       .button("Add Group", move |s| {
-         add_group(s, &temp_user);}).fixed_width(30));
+         add_group(s, &temp_user);}).min_width(30).min_height(8));
 }
 
 fn add_group(app: &mut Cursive, username: &str) {    
@@ -153,20 +164,27 @@ fn add_group(app: &mut Cursive, username: &str) {
        .content(ListView::new()
        .child("Group: ", EditView::new().with_name("newgroup")),
       )
+         .button("Cancel", |s| {s.pop_layer();})
          .button("Add", move |s| {
             let new_group = s.call_on_name("newgroup", |t: &mut EditView| t.get_content()).unwrap();
-            let fp = format!("secure/vault/{}/{}", &user, new_group);
-            if Path::new(&fp).is_dir() == false {
-                let file = fs::create_dir(&fp).expect("Could not create file");
+            if new_group.chars().all(char::is_whitespace) {
                 s.pop_layer();
-                s.pop_layer();
-                notify(s, "Group Created", "Success");
-                groups(s, user.as_str());
-         }
+                notify(s, "Name cannot be whitespace", "Error");
+            }
             else {
-                notify(s, "Group Already Exists!", "Error");    
-         }
-      })
+               let fp = format!("secure/vault/{}/{}", &user, new_group);
+               if Path::new(&fp).is_dir() == false {
+                   let file = fs::create_dir(&fp).expect("Could not create file");
+                   s.pop_layer();
+                   s.pop_layer();
+                   notify(s, "Group Created", "Success");
+                   groups(s, user.as_str());
+               }
+               else {
+                    notify(s, "Group Already Exists!", "Error");    
+               }
+            }
+         }).min_width(30).min_height(10)
          );
 }
 
@@ -197,5 +215,9 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
       menu.add_item_str(dir_name);
    }
    app.add_layer(Dialog::around(menu).title("Vault").button("Back", |s| {s.pop_layer();})
-      .button("Add User", |s| s.quit()).fixed_width(30));
+      .button("Add", |s| s.quit()).min_width(30).min_height(8));
 }
+
+
+
+
