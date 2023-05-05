@@ -129,7 +129,7 @@ fn groups(app: &mut Cursive, username: &str) {
    let mut menu = SelectView::new().h_align(HAlign::Center);
    let dir = format!("secure/vault/{}", username);
    let entries = fs::read_dir(&dir).unwrap();
-   if  PathBuf::from(&dir).read_dir().map(|mut i| i.next().is_none()).unwrap_or(false) {
+   if PathBuf::from(&dir).read_dir().map(|mut i| i.next().is_none()).unwrap_or(false) {
        menu.add_item_str("<empty>");
        menu.add_item_str("<empty>");
        menu.add_item_str("<empty>");
@@ -214,8 +214,66 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
       let dir_name = path.file_name().unwrap().to_str().unwrap();
       menu.add_item_str(dir_name);
    }
+   let user = String::from(username);
+   let temp_user = String::from(user.clone());
+   let group = String::from(group);
+   let temp_group = String::from(group.clone());
+   menu.set_on_submit(move |s, option: &str| {
+      select_user(s, option, &temp_group, &user);
+   });
+
    app.add_layer(Dialog::around(menu).title("Vault").button("Back", |s| {s.pop_layer();})
-      .button("Add", |s| s.quit()).min_width(30).min_height(8));
+      .button("Add", move |s| {add_user(s, &group, &temp_user)}).min_width(30).min_height(8));
+}
+
+fn select_user(app: &mut Cursive, selected: &str, group: &str, username: &str) {
+   let dir = format!("secure/vault/{}/{}", username, group);
+   let entries = fs::read_dir(&dir).unwrap();
+   
+   for entry in entries {
+      let entry = entry.unwrap();
+      let path = entry.path();
+      let group = path.file_name().unwrap().to_str().unwrap();
+      if group == selected {
+         view_user(app, dir.as_str(), &username);
+      }
+   }
+}
+
+fn view_user(app: &mut Cursive, dir: &str, username: &str) {
+
+}
+
+fn add_user(app: &mut Cursive, group: &str, username: &str) {
+   let group = String::from(group);
+   let user = String::from(username);
+   app.add_layer(Dialog::new()
+       .title("Add User")
+       .content(ListView::new()
+       .child("Name: ", EditView::new().with_name("newuser")),
+      )
+         .button("Cancel", |s| {s.pop_layer();})
+         .button("Add", move |s| {
+            let new_user = s.call_on_name("newuser", |t: &mut EditView| t.get_content()).unwrap();
+            if new_user.chars().all(char::is_whitespace) {
+                s.pop_layer();
+                notify(s, "Name cannot be whitespace", "Error");
+            }
+            else {
+               let fp = format!("secure/vault/{}/{}/{}", &user, &group, new_user);
+               if Path::new(&fp).is_dir() == false {
+                   let file = fs::create_dir(&fp).expect("Could not create file");
+                   s.pop_layer();
+                   s.pop_layer();
+                   notify(s, "User saved", "Success");
+                   vault(s, &group, user.as_str());
+               }
+               else {
+                    notify(s, "User already exists", "Error");    
+               }
+            }
+         }).min_width(30).min_height(10)
+         );
 }
 
 

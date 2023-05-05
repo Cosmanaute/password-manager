@@ -1,5 +1,6 @@
 extern crate cursive;
 use cursive::Cursive;
+use cursive::view::Resizable;
 use cursive::views::{Dialog, TextView};
 use cursive::event::Key;
 
@@ -17,7 +18,7 @@ fn main() {
     app.add_global_callback(Key::Esc, |s| {s.add_layer(Dialog::around(TextView::new(
         "Are you sure you want to exit?")).title("Exit")
         .button("Cancel", |s| {s.pop_layer();})
-        .button("Exit", |s| s.quit())
+        .button("Exit", |s| s.quit()).min_width(30).min_height(8)
     )} );
     //starting tui
     tui::start(&mut app); 
