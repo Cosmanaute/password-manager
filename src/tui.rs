@@ -2,7 +2,6 @@ use cursive::align::HAlign;
 use cursive::view::{Nameable, Resizable};
 use cursive::views::{SelectView, TextView, Dialog, ListView, EditView, Checkbox};
 use cursive::Cursive;
-use std::fmt::format;
 use std::fs::{File, self};
 use std::path::Path;
 mod hcrypto;
@@ -79,9 +78,7 @@ fn login(app: &mut Cursive) {
          if info.username.chars().all(char::is_whitespace) || info.username.is_empty() {
             notify(s, "Username cannot be None", "Error");
          }
-         else {
-            check_pass(s, info);
-         }
+         verify_signature_login(s, info);
        })
       .fixed_width(40));
 }
@@ -93,7 +90,7 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
       notify(app, "User created!", "Info");
 }
 
-fn check_pass(app: &mut Cursive, info: SigninDetails) {
+fn verify_signature_login(app: &mut Cursive, info: SigninDetails) {
    let fp = format!("secure/signatures/{}.txt", info.username);
 
    if Path::new(&fp).exists() == false && info.signup == true {
@@ -225,20 +222,52 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
 }
 
 fn select_user(app: &mut Cursive, selected: &str, group: &str, username: &str) {
-   let dir = format!("secure/vault/{}/{}", username, group);
-   let entries = fs::read_dir(&dir).unwrap();
+   let fp = format!("secure/vault/{}/{}", username, group);
+   let entries = fs::read_dir(&fp).unwrap();
    
    for entry in entries {
       let entry = entry.unwrap();
       let path = entry.path();
-      let group = path.file_name().unwrap().to_str().unwrap();
-      if group == selected {
-         view_user(app, &dir.as_str(), &username);
+      let user = path.file_name().unwrap().to_str().unwrap();
+      if user == selected {
+         enter_signture(app, &fp.as_str(), &user, &username);
       }
    }
 }
 
-fn view_user(app: &mut Cursive, dir: &str, username: &str) {
+fn verify_signature(input: &str, username: &str) -> bool {
+   let fp = format!("secure/signatures/{}.txt", username);
+   let mut file = fs::File::open(&fp).expect("Could not open file"); 
+   let mut contents = String::new();
+   file.read_to_string(&mut contents).unwrap();
+
+   let hashed_input = hcrypto::hash(&input); 
+   contents.as_str() == hashed_input.as_str()
+}
+
+fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
+   let signature_name = String::from(username.clone());
+   app.add_layer(Dialog::new()
+      .title("Verify Signature")
+      .content(
+         ListView::new()
+         .child("Signature: ", EditView::new().secret().with_name("signature")),
+      )
+      .button("Cancel", |s| {s.pop_layer();})
+      .button("Verify", move |s| {
+         let signature = s.call_on_name("signature", |t: &mut EditView| t.get_content()).unwrap();
+         if verify_signature(&signature, &signature_name) {
+
+         }
+         else {
+            notify(s, "Incorrect Signature", "Error");
+         }
+
+      }).fixed_width(30)
+   )
+}
+
+fn show_user(app: &mut Cursive, fp: &str, user: &str) {
 
 }
 
@@ -256,7 +285,8 @@ fn add_user(app: &mut Cursive, group: &str, username: &str) {
          .button("Add", move |s| {
             let new_user = s.call_on_name("newuser", |t: &mut EditView| t.get_content()).unwrap();
             let password = s.call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
-            if new_user.chars().all(char::is_whitespace) {
+
+            if new_user.chars().all(char::is_whitespace) || new_user.as_str() == "priv_key" || new_user.as_str() == "pub_key" {
                s.pop_layer();
                notify(s, "Name cannot be whitespace", "Error");
             }
@@ -264,15 +294,16 @@ fn add_user(app: &mut Cursive, group: &str, username: &str) {
                let fp = format!("secure/vault/{}/{}/{}", &user, &group, &new_user);
                if !Path::new(&fp).is_dir() {
                   fs::create_dir(&fp).expect("Could not create dir");
-                  let fp = format!("secure/vault/{}/{}/{}/{}.txt", &user, &group, &new_user, &new_user); 
-                  let file = fs::File::create(&fp).expect("Could not create file");  
+                  let fp = format!("secure/vault/{}/{}/{}/{}.txt", &user, &group, &new_user, &new_user);
+                  let mut file = fs::File::create(&fp).expect("Could not create file");
+
                   let key = hcrypto::hash(&user);
-                  
-                  
+                  let encrypted_password = hcrypto::encrypt(&key, &password);
+                  file.write_all(&encrypted_password.as_bytes()).expect("Could not write to file");
                   
                    s.pop_layer();
                    s.pop_layer();
-                   notify(s, "User saved", "Success");
+
                    vault(s, &group, user.as_str());
                }
                else {
