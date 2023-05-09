@@ -197,7 +197,7 @@ fn select_group(app: &mut Cursive, selected: &str, username: &str) {
 }
 
 fn vault(app: &mut Cursive, group: &str, username: &str) {
-   let title = format!("Vault -> {} ", &group);
+   let title = format!("{} → vault ", &group);
    let fp = format!("secure/vault/{}/{}", username, group);
    let entries = fs::read_dir(&fp).unwrap();
    let mut menu = SelectView::new().h_align(HAlign::Center);
@@ -247,6 +247,8 @@ fn verify_signature(input: &str, username: &str) -> bool {
 
 fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
    let signature_name = String::from(username.clone());
+   let user = String::from(user.clone());
+   let fp = format!("{}/{}", &fp, &user);
    app.add_layer(Dialog::new()
       .title("Verify Signature")
       .content(
@@ -257,7 +259,7 @@ fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
       .button("Verify", move |s| {
          let signature = s.call_on_name("signature", |t: &mut EditView| t.get_content()).unwrap();
          if verify_signature(&signature, &signature_name) {
-
+            show_user(s, &fp, &user);
          }
          else {
             notify(s, "Incorrect Signature", "Error");
@@ -268,7 +270,20 @@ fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
 }
 
 fn show_user(app: &mut Cursive, fp: &str, user: &str) {
+   let fp = format!("{}/{}.txt", &fp, &user);
+   let mut file = fs::File::open(&fp).expect("Could not open file");
+   let mut encrypted_password = String::new();
+   file.read_to_string(&mut encrypted_password).expect("Could not read file");
+   
+   let key = hcrypto::hash(&user);
+   let decrypted_password = hcrypto::decrypt(&key, &encrypted_password);
 
+   let title = format!("Vault → {}", &user);
+   app.add_layer(Dialog::new().title(title).content(
+       ListView::new()
+        .child("    User → ", TextView::new(user))
+        .child("Password → ", TextView::new(decrypted_password))
+   ).button("Close", |s| {s.pop_layer();}).min_width(30).min_height(8))
 }
 
 fn add_user(app: &mut Cursive, group: &str, username: &str) {
