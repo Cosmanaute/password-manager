@@ -84,15 +84,19 @@ fn login(app: &mut Cursive) {
 }
 
 fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
+   if info.password.len() < 3 {
+      notify(app, "Signature must be atleast 3 characters", "Error");
+   }
+   else {
       let mut file = File::create(&fp).expect("Could not create file!"); 
       let hashed_password = hcrypto::hash(&info.password);
       file.write_all(hashed_password.as_bytes()).expect("Could not write to file!");
       notify(app, "User created!", "Info");
+   }
 }
 
 fn verify_signature_login(app: &mut Cursive, info: SigninDetails) {
    let fp = format!("secure/signatures/{}.txt", info.username);
-
    if Path::new(&fp).exists() == false && info.signup == true {
          signup(app, &info, &fp);
    }
@@ -259,7 +263,8 @@ fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
       .button("Verify", move |s| {
          let signature = s.call_on_name("signature", |t: &mut EditView| t.get_content()).unwrap();
          if verify_signature(&signature, &signature_name) {
-            show_user(s, &fp, &user);
+            s.pop_layer();
+            show_user(s, &fp, &user.as_str());
          }
          else {
             notify(s, "Incorrect Signature", "Error");
@@ -281,7 +286,7 @@ fn show_user(app: &mut Cursive, fp: &str, user: &str) {
    let title = format!("Vault → {}", &user);
    app.add_layer(Dialog::new().title(title).content(
        ListView::new()
-        .child("    User → ", TextView::new(user))
+        .child("Username → ", TextView::new(user))
         .child("Password → ", TextView::new(decrypted_password))
    ).button("Close", |s| {s.pop_layer();}).min_width(30).min_height(8))
 }
@@ -312,7 +317,7 @@ fn add_user(app: &mut Cursive, group: &str, username: &str) {
                   let fp = format!("secure/vault/{}/{}/{}/{}.txt", &user, &group, &new_user, &new_user);
                   let mut file = fs::File::create(&fp).expect("Could not create file");
 
-                  let key = hcrypto::hash(&user);
+                  let key = hcrypto::hash(&new_user);
                   let encrypted_password = hcrypto::encrypt(&key, &password);
                   file.write_all(&encrypted_password.as_bytes()).expect("Could not write to file");
                   
