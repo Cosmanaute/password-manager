@@ -11,9 +11,9 @@ use cursive::theme::PaletteStyle;
 
 fn usage(app: &mut Cursive) {
    let text = format!("▲ and ▼ ---------→ Move
-                     \nEnter -----------→ submit
-                     \nCtrl + Backspace → Backspace
-                     \nEsc -------------→ Quit");
+      \nEnter -----------→ submit
+      \nCtrl + Backspace → Backspace
+      \nEsc -------------→ Quit");
    app.add_layer(Dialog::around(TextView::new(text).h_align(HAlign::Left)).title("Usage").button("OK", |s| {s.pop_layer();}));
 }
 
@@ -46,20 +46,20 @@ struct SigninDetails<'a> {
 }
 
 fn login(app: &mut Cursive) {
-    app.add_layer(Dialog::new()
+   app.add_layer(Dialog::new()
       .title("Login / Register")
       .content(
          ListView::new()
-         .child(" Username → ", EditView::new().style(PaletteStyle::TitleSecondary).with_name("username"))
-         .child("Signature → ", EditView::new().secret().with_name("password"))
-         .child(" Register →", Checkbox::new().with_name("signup")),
+            .child(" Username → ", EditView::new().style(PaletteStyle::TitleSecondary).with_name("username"))
+            .child("Signature → ", EditView::new().secret().with_name("password"))
+            .child(" Register →", Checkbox::new().with_name("signup")),
       )
       .button("Cancel", |s| {s.pop_layer();})
       .button("Continue", |s| {
          let username = s.call_on_name("username", |t: &mut EditView| t.get_content()).unwrap();
          let password = s.call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
          let signup = s.call_on_name("signup", |t: &mut Checkbox| t.is_checked()).unwrap();
-         
+
          let info = SigninDetails {
             username: &username,
             password: &password,
@@ -79,7 +79,7 @@ fn login(app: &mut Cursive) {
             notify(s, "Username cannot be None", "Error");
          }
          verify_signature_login(s, info);
-       })
+      })
       .fixed_width(40));
 }
 
@@ -98,35 +98,35 @@ fn signup(app: &mut Cursive, info: &SigninDetails, fp: &str) {
 fn verify_signature_login(app: &mut Cursive, info: SigninDetails) {
    let fp = format!("secure/signatures/{}.txt", info.username);
    if Path::new(&fp).exists() == false && info.signup == true {
-         signup(app, &info, &fp);
+      signup(app, &info, &fp);
    }
    else if Path::new(&fp).exists() == false && info.signup == false {
-         notify(app, "Incorrect username or signature", "Error");
+      notify(app, "Incorrect username or signature", "Error");
    }
    else if Path::new(&fp).exists() == true && info.signup == true {
-         notify(app, "User already exists!", "Error");
+      notify(app, "User already exists!", "Error");
    }
    else if Path::new(&fp).exists() == true && info.signup == false {
-        let mut file = File::open(&fp).expect("Error opening file!");
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
+      let mut file = File::open(&fp).expect("Error opening file!");
+      let mut contents = String::new();
+      file.read_to_string(&mut contents).unwrap();
 
-        if contents.as_str() == hcrypto::hash(&info.password).as_str() {
-            app.pop_layer();
-            let path = format!("secure/vault/{}", info.username);
-            if Path::new(&path.as_str()).is_dir() == false {
-                fs::create_dir(&path).expect("Could not create folder"); 
-            }
-            let username = info.username.clone();
-            groups(app, username);
-        }
-        else {
-            notify(app, "Incorrect username or signature", "Error");
-        }
-    }
-    else {
-        notify(app, "Incorrect username or signature", "Error");
-    }
+      if contents.as_str() == hcrypto::hash(&info.password).as_str() {
+         app.pop_layer();
+         let path = format!("secure/vault/{}", info.username);
+         if Path::new(&path.as_str()).is_dir() == false {
+            fs::create_dir(&path).expect("Could not create folder"); 
+         }
+         let username = info.username.clone();
+         groups(app, username);
+      }
+      else {
+         notify(app, "Incorrect username or signature", "Error");
+      }
+   }
+   else {
+      notify(app, "Incorrect username or signature", "Error");
+   }
 }
 
 fn groups(app: &mut Cursive, username: &str) {
@@ -142,7 +142,7 @@ fn groups(app: &mut Cursive, username: &str) {
          menu.add_item_str(dir_name);
       }
    }
-   
+
    let user = String::from(username);
    let add_user = String::from(user.clone());
    let del_user = String::from(user.clone());
@@ -161,37 +161,37 @@ fn groups(app: &mut Cursive, username: &str) {
 fn delete_group(app: &mut Cursive, username: &str) {
    let user = String::from(username.clone());
    app.add_layer(Dialog::new()
-       .title("Delete Group")
-       .content(ListView::new()
-       .child("Delete group → ", EditView::new().with_name("delgroup")),
+      .title("Delete Group")
+      .content(ListView::new()
+         .child("Delete group → ", EditView::new().with_name("delgroup")),
       )
-         .button("Cancel", |s| {s.pop_layer();})
-         .button("DELETE", move |s| {
-             
-            let del_group = s.call_on_name("delgroup", |t: &mut EditView| t.get_content()).unwrap();
-            if del_group.chars().all(char::is_whitespace) {
-                s.pop_layer();
-                notify(s, "Cannot Be None", "Error");
+      .button("Cancel", |s| {s.pop_layer();})
+      .button("DELETE", move |s| {
+
+         let del_group = s.call_on_name("delgroup", |t: &mut EditView| t.get_content()).unwrap();
+         if del_group.chars().all(char::is_whitespace) {
+            s.pop_layer();
+            notify(s, "Cannot Be None", "Error");
+         }
+         else {
+            let fp = format!("secure/vault/{}/{}", &user, del_group);
+            if Path::new(&fp).is_dir() {
+               let return_user = user.clone();
+               let msg = format!("All contents of {} will be deleted!\nDo you want to proceed?", &del_group);
+               s.add_layer(Dialog::around(TextView::new(msg).h_align(HAlign::Center)).title("Delete Group")
+                  .button("Cancel", move |s| {s.pop_layer();})
+                  .button("Confirm", move |s| {
+                     fs::remove_dir_all(&fp).expect("Could not remove folder");
+                     s.pop_layer();
+                     s.pop_layer();
+                     s.pop_layer();
+                     groups(s, &return_user);
+                     notify(s, "Group Deleted", "Success");
+                  }).min_width(30).min_height(8));
             }
             else {
-               let fp = format!("secure/vault/{}/{}", &user, del_group);
-               if Path::new(&fp).is_dir() {
-                   let return_user = user.clone();
-                   let msg = format!("All contents of {} will be deleted!\nDo you want to proceed?", &del_group);
-                   s.add_layer(Dialog::around(TextView::new(msg).h_align(HAlign::Center)).title("Delete Group")
-                    .button("Cancel", move |s| {s.pop_layer();})
-                    .button("Confirm", move |s| {
-                        fs::remove_dir_all(&fp).expect("Could not remove folder");
-                        s.pop_layer();
-                        s.pop_layer();
-                        s.pop_layer();
-                        groups(s, &return_user);
-                        notify(s, "Group Deleted", "Success");
-                     }).min_width(30).min_height(8));
-               }
-               else {
-                    notify(s, "Group Does Not Exists!", "Error");    
-               }
+               notify(s, "Group Does Not Exists!", "Error");    
+            }
          }
       }).min_width(30).min_height(8)
    );
@@ -200,29 +200,29 @@ fn delete_group(app: &mut Cursive, username: &str) {
 fn add_group(app: &mut Cursive, username: &str) {    
    let user = String::from(username);
    app.add_layer(Dialog::new()
-       .title("Add Group")
-       .content(ListView::new()
-       .child("New group → ", EditView::new().with_name("newgroup")),
+      .title("Add Group")
+      .content(ListView::new()
+         .child("New group → ", EditView::new().with_name("newgroup")),
       )
-         .button("Cancel", |s| {s.pop_layer();})
-         .button("ADD", move |s| {
-            let new_group = s.call_on_name("newgroup", |t: &mut EditView| t.get_content()).unwrap();
-            if new_group.chars().all(char::is_whitespace) {
-                s.pop_layer();
-                notify(s, "Name Cannot Be None", "Error");
+      .button("Cancel", |s| {s.pop_layer();})
+      .button("ADD", move |s| {
+         let new_group = s.call_on_name("newgroup", |t: &mut EditView| t.get_content()).unwrap();
+         if new_group.chars().all(char::is_whitespace) {
+            s.pop_layer();
+            notify(s, "Name Cannot Be None", "Error");
+         }
+         else {
+            let fp = format!("secure/vault/{}/{}", &user, new_group);
+            if Path::new(&fp).is_dir() == false {
+               fs::create_dir(&fp).expect("Could not create file");
+               s.pop_layer();
+               s.pop_layer();
+               notify(s, "Group Created", "Success");
+               groups(s, user.as_str());
             }
             else {
-               let fp = format!("secure/vault/{}/{}", &user, new_group);
-               if Path::new(&fp).is_dir() == false {
-                   fs::create_dir(&fp).expect("Could not create file");
-                   s.pop_layer();
-                   s.pop_layer();
-                   notify(s, "Group Created", "Success");
-                   groups(s, user.as_str());
-               }
-               else {
-                    notify(s, "Group Already Exists!", "Error");    
-               }
+               notify(s, "Group Already Exists!", "Error");    
+            }
          }
       }).min_width(30).min_height(8)
    );
@@ -231,7 +231,7 @@ fn add_group(app: &mut Cursive, username: &str) {
 fn select_group(app: &mut Cursive, selected: &str, username: &str) {
    let dir = format!("secure/vault/{}", username);
    let entries = fs::read_dir(&dir).unwrap();
-   
+
    for entry in entries {
       let entry = entry.unwrap();
       let path = entry.path();
@@ -247,7 +247,7 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
    let fp = format!("secure/vault/{}/{}", username, group);
    let entries = fs::read_dir(&fp).unwrap();
    let mut menu = SelectView::new().h_align(HAlign::Center);
-   
+
    for entry in entries {
       let entry = entry.unwrap();
       let path = entry.path(); 
@@ -270,8 +270,8 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
 fn select_user(app: &mut Cursive, selected: &str, group: &str, username: &str) {
    let fp = format!("secure/vault/{}/{}", username, group);
    let entries = fs::read_dir(&fp).unwrap();
-   
-   for entry in entries {
+
+for entry in entries {
       let entry = entry.unwrap();
       let path = entry.path();
       let user = path.file_name().unwrap().to_str().unwrap();
@@ -299,7 +299,7 @@ fn enter_signture(app: &mut Cursive, fp: &str, user: &str, username: &str) {
       .title("Verify Signature")
       .content(
          ListView::new()
-         .child("Signature: ", EditView::new().secret().with_name("signature")),
+            .child("Signature: ", EditView::new().secret().with_name("signature")),
       )
       .button("Cancel", |s| {s.pop_layer();})
       .button("Verify", move |s| {
@@ -321,15 +321,15 @@ fn show_user(app: &mut Cursive, fp: &str, user: &str) {
    let mut file = fs::File::open(&fp).expect("Could not open file");
    let mut encrypted_password = String::new();
    file.read_to_string(&mut encrypted_password).expect("Could not read file");
-   
+
    let key = hcrypto::hash(&user);
    let decrypted_password = hcrypto::decrypt(&key, &encrypted_password);
 
    let title = format!("Vault → {}", &user);
    app.add_layer(Dialog::new().title(title).content(
-       ListView::new()
-        .child("Username → ", TextView::new(user))
-        .child("Password → ", TextView::new(decrypted_password))
+      ListView::new()
+         .child("Username → ", TextView::new(user))
+         .child("Password → ", TextView::new(decrypted_password))
    ).button("Close", |s| {s.pop_layer();}).min_width(30).min_height(8))
 }
 
@@ -338,40 +338,40 @@ fn add_user(app: &mut Cursive, group: &str, username: &str) {
    let group = String::from(group);
    let user = String::from(username);
    app.add_layer(Dialog::new()
-       .title(title)
-       .content(ListView::new()
-       .child("New user → ", EditView::new().with_name("newuser"))
-       .child("Password → ", EditView::new().secret().with_name("password")),
+      .title(title)
+      .content(ListView::new()
+         .child("New user → ", EditView::new().with_name("newuser"))
+         .child("Password → ", EditView::new().secret().with_name("password")),
       )
-         .button("Cancel", |s| {s.pop_layer();})
-         .button("Add", move |s| {
-            let new_user = s.call_on_name("newuser", |t: &mut EditView| t.get_content()).unwrap();
-            let password = s.call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
+      .button("Cancel", |s| {s.pop_layer();})
+      .button("Add", move |s| {
+         let new_user = s.call_on_name("newuser", |t: &mut EditView| t.get_content()).unwrap();
+         let password = s.call_on_name("password", |t: &mut EditView| t.get_content()).unwrap();
 
-            if new_user.chars().all(char::is_whitespace) || new_user.as_str() == "priv_key" || new_user.as_str() == "pub_key" {
+         if new_user.chars().all(char::is_whitespace) || new_user.as_str() == "priv_key" || new_user.as_str() == "pub_key" {
+            s.pop_layer();
+            notify(s, "Name cannot be whitespace", "Error");
+         }
+         else {
+            let fp = format!("secure/vault/{}/{}/{}", &user, &group, &new_user);
+            if !Path::new(&fp).is_dir() {
+               fs::create_dir(&fp).expect("Could not create dir");
+               let fp = format!("secure/vault/{}/{}/{}/{}.txt", &user, &group, &new_user, &new_user);
+               let mut file = fs::File::create(&fp).expect("Could not create file");
+
+               let key = hcrypto::hash(&new_user);
+               let encrypted_password = hcrypto::encrypt(&key, &password);
+               file.write_all(&encrypted_password.as_bytes()).expect("Could not write to file");
+
                s.pop_layer();
-               notify(s, "Name cannot be whitespace", "Error");
+               s.pop_layer();
+
+               vault(s, &group, user.as_str());
             }
             else {
-               let fp = format!("secure/vault/{}/{}/{}", &user, &group, &new_user);
-               if !Path::new(&fp).is_dir() {
-                  fs::create_dir(&fp).expect("Could not create dir");
-                  let fp = format!("secure/vault/{}/{}/{}/{}.txt", &user, &group, &new_user, &new_user);
-                  let mut file = fs::File::create(&fp).expect("Could not create file");
-
-                  let key = hcrypto::hash(&new_user);
-                  let encrypted_password = hcrypto::encrypt(&key, &password);
-                  file.write_all(&encrypted_password.as_bytes()).expect("Could not write to file");
-                  
-                   s.pop_layer();
-                   s.pop_layer();
-
-                   vault(s, &group, user.as_str());
-               }
-               else {
-                    notify(s, "User already exists", "Error");    
-               }
+               notify(s, "User already exists", "Error");    
             }
+         }
       }).min_width(30).min_height(10)
    );
 }
