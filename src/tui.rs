@@ -144,15 +144,57 @@ fn groups(app: &mut Cursive, username: &str) {
    }
    
    let user = String::from(username);
-   let temp_user = String::from(user.clone());
+   let add_user = String::from(user.clone());
+   let del_user = String::from(user.clone());
    menu.set_on_submit(move |s, option: &str| {
       select_group(s, option, &user);
    });
 
    app.add_layer(Dialog::around(menu).title("Groups")
-      .button("DELETE", |s| s.quit())
+      .button("DELETE", move |s| {
+         delete_group(s, &del_user)         
+      })
       .button("ADD", move |s| {
-         add_group(s, &temp_user);}).min_width(30).min_height(8));
+         add_group(s, &add_user);}).min_width(30).min_height(8));
+}
+
+fn delete_group(app: &mut Cursive, username: &str) {
+   let user = String::from(username.clone());
+   app.add_layer(Dialog::new()
+       .title("Delete Group")
+       .content(ListView::new()
+       .child("Delete group → ", EditView::new().with_name("delgroup")),
+      )
+         .button("Cancel", |s| {s.pop_layer();})
+         .button("DELETE", move |s| {
+             
+            let del_group = s.call_on_name("delgroup", |t: &mut EditView| t.get_content()).unwrap();
+            if del_group.chars().all(char::is_whitespace) {
+                s.pop_layer();
+                notify(s, "Cannot Be None", "Error");
+            }
+            else {
+               let fp = format!("secure/vault/{}/{}", &user, del_group);
+               if Path::new(&fp).is_dir() {
+                   let return_user = user.clone();
+                   let msg = format!("All contents of {} will be deleted!\nDo you want to proceed?", &del_group);
+                   s.add_layer(Dialog::around(TextView::new(msg).h_align(HAlign::Center)).title("Delete Group")
+                    .button("Cancel", move |s| {s.pop_layer();})
+                    .button("Confirm", move |s| {
+                        fs::remove_dir_all(&fp).expect("Could not remove folder");
+                        s.pop_layer();
+                        s.pop_layer();
+                        s.pop_layer();
+                        groups(s, &return_user);
+                        notify(s, "Group Deleted", "Success");
+                     }).min_width(30).min_height(8));
+               }
+               else {
+                    notify(s, "Group Does Not Exists!", "Error");    
+               }
+         }
+      }).min_width(30).min_height(8)
+   );
 }
 
 fn add_group(app: &mut Cursive, username: &str) {    
