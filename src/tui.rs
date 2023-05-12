@@ -11,9 +11,9 @@ use cursive::theme::PaletteStyle;
 
 fn usage(app: &mut Cursive) {
    let text = format!("▲ and ▼ ---------→ Move
-      \nEnter -----------→ submit
-      \nCtrl + Backspace → Backspace
-      \nEsc -------------→ Quit");
+                    \nEnter -----------→ submit
+                     \nCtrl + Backspace → Backspace
+                      \nEsc -------------→ Quit");
    app.add_layer(Dialog::around(TextView::new(text).h_align(HAlign::Left)).title("Usage").button("OK", |s| {s.pop_layer();}));
 }
 

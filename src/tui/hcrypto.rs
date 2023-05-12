@@ -1,8 +1,8 @@
 use magic_crypt::*;
-use sha2::{Sha256, Digest};
+use sha3::{Sha3_256, Digest};
 
 pub fn hash(password: &str) -> String {
-    let mut hasher = Sha256::new();
+    let mut hasher = Sha3_256::new();
     hasher.update(password.as_bytes());
     let hashed_password = hasher.finalize();
     format!("{:x}", hashed_password)
