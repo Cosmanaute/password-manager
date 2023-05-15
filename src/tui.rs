@@ -158,8 +158,8 @@ fn groups(app: &mut Cursive, username: &str) {
          add_group(s, &add_user);}).min_width(30).min_height(8));
 }
 
-fn delete_group(app: &mut Cursive, username: &str) {
-   let user = String::from(username.clone());
+fn delete_group(app: &mut Cursive, user: &str) {
+   let signature_user = String::from(user.clone());
    app.add_layer(Dialog::new()
       .title("Delete Group")
       .content(ListView::new()
@@ -174,9 +174,9 @@ fn delete_group(app: &mut Cursive, username: &str) {
             notify(s, "Cannot Be None", "Error");
          }
          else {
-            let fp = format!("secure/vault/{}/{}", &user, del_group);
+            let fp = format!("secure/vault/{}/{}", &signature_user, del_group);
             if Path::new(&fp).is_dir() {
-               let return_user = user.clone();
+               let return_user = signature_user.clone();
                let msg = format!("All contents of {} will be deleted!\nDo you want to proceed?", &del_group);
                s.add_layer(Dialog::around(TextView::new(msg).h_align(HAlign::Center)).title("Delete Group")
                   .button("Cancel", move |s| {s.pop_layer();})
@@ -259,11 +259,15 @@ fn vault(app: &mut Cursive, group: &str, username: &str) {
    let temp_user = String::from(user.clone());
    let group = String::from(group);
    let temp_group = String::from(group.clone());
+   let delete_username = user.clone();
+   let delete_groupname = String::from(group.clone());
+
    menu.set_on_submit(move |s, option: &str| {
       select_user(s, option, &temp_group, &user);
    });
 
    app.add_layer(Dialog::around(menu).title(title).button("Back", |s| {s.pop_layer();})
+      .button("DELETE", move |s| {delete_user(s,  &delete_groupname, &delete_username);})
       .button("Add", move |s| {add_user(s, &group, &temp_user)}).min_width(30).min_height(8));
 }
 
@@ -279,6 +283,47 @@ for entry in entries {
          enter_signture(app, &fp.as_str(), &user, &username);
       }
    }
+}
+
+fn delete_user(app: &mut Cursive, group: &str, signature_username: &str) {
+   let signature_user = String::from(signature_username.clone());
+   let group = String::from(group.clone());
+   app.add_layer(Dialog::new()
+      .title("Delete User")
+      .content(ListView::new()
+         .child("Delete User → ", EditView::new().with_name("deluser")),
+      )
+      .button("Cancel", |s| {s.pop_layer();})
+      .button("DELETE", move |s| {
+
+         let del_user = s.call_on_name("deluser", |t: &mut EditView| t.get_content()).unwrap();
+         if del_user.chars().all(char::is_whitespace) {
+            s.pop_layer();
+            notify(s, "Cannot Be None", "Error");
+         }
+         else {
+            let fp = format!("secure/vault/{}/{}/{}", &signature_user, &group, &del_user);
+            if Path::new(&fp).is_dir() {
+               let return_user = String::from(signature_user.clone());
+               let return_group = String::from(group.clone());
+               let msg = format!("Are you sure you want to delete {}?", &del_user);
+               s.add_layer(Dialog::around(TextView::new(msg).h_align(HAlign::Center)).title("Delete Group")
+                  .button("Cancel", move |s| {s.pop_layer();})
+                  .button("Confirm", move |s| {
+                     fs::remove_dir_all(&fp).expect("Could not remove folder");
+                     s.pop_layer();
+                     s.pop_layer();
+                     s.pop_layer();
+                     vault(s, &return_group, &return_user);
+                     notify(s, "User Deleted", "Success");
+                  }).min_width(30).min_height(8));
+            }
+            else {
+               notify(s, "User Does Not Exists!", "Error");    
+            }
+         }
+      }).min_width(30).min_height(8)
+   );
 }
 
 fn verify_signature(input: &str, username: &str) -> bool {
