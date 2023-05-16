@@ -1,0 +1,15 @@
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/anyhow-9cfbe0580de549b3.rmeta: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/backtrace.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/chain.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/context.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ensure.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/error.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/fmt.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/kind.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/macros.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ptr.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/wrapper.rs
+
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/anyhow-9cfbe0580de549b3.d: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/backtrace.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/chain.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/context.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ensure.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/error.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/fmt.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/kind.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/macros.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ptr.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/wrapper.rs
+
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/lib.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/backtrace.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/chain.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/context.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ensure.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/error.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/fmt.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/kind.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/macros.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/ptr.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/anyhow-1.0.71/src/wrapper.rs:

@@ -1,0 +1,12 @@
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/libthiserror_impl-ec275288acd18c65.so: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/ast.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/attr.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/expand.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/fmt.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/generics.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/prop.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/valid.rs
+
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/thiserror_impl-ec275288acd18c65.d: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/ast.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/attr.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/expand.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/fmt.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/generics.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/prop.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/valid.rs
+
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/lib.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/ast.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/attr.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/expand.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/fmt.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/generics.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/prop.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.40/src/valid.rs:

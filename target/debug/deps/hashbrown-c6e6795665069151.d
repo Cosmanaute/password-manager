@@ -1,0 +1,14 @@
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/hashbrown-c6e6795665069151.rmeta: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/macros.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/mod.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/alloc.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/bitmask.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/external_trait_impls/mod.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/map.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/scopeguard.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/set.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/sse2.rs
+
+/home/cos/Desktop/programming/projects/pm/target/debug/deps/hashbrown-c6e6795665069151.d: /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/lib.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/macros.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/mod.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/alloc.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/bitmask.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/external_trait_impls/mod.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/map.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/scopeguard.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/set.rs /home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/sse2.rs
+
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/lib.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/macros.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/mod.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/alloc.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/bitmask.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/external_trait_impls/mod.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/map.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/scopeguard.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/set.rs:
+/home/cos/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/sse2.rs:
