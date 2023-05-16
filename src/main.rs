@@ -1,5 +1,4 @@
 extern crate cursive;
-use cursive::Cursive;
 use cursive::view::Resizable;
 use cursive::views::{Dialog, TextView};
 use cursive::event::Key;
