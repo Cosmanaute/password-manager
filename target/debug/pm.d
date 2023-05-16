@@ -1,1 +1,1 @@
-/home/cos/Desktop/programming/projects/pm/target/debug/pm: /home/cos/Desktop/programming/projects/pm/src/main.rs /home/cos/Desktop/programming/projects/pm/src/tui/hcrypto.rs /home/cos/Desktop/programming/projects/pm/src/tui.rs
+/home/cos/Desktop/programming/projects/password-manager/target/debug/pm: /home/cos/Desktop/programming/projects/password-manager/src/main.rs /home/cos/Desktop/programming/projects/password-manager/src/tui/hcrypto.rs /home/cos/Desktop/programming/projects/password-manager/src/tui.rs
