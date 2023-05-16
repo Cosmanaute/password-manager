@@ -1,3 +1,4 @@
+// version 1.0
 extern crate cursive;
 use cursive::view::Resizable;
 use cursive::views::{Dialog, TextView};
